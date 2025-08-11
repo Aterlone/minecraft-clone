@@ -24,3 +24,24 @@ void Camera::project(unsigned int shaderProgram) {
     int projectionLoc = glGetUniformLocation(shaderProgram, "projection");
     glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection)); 
 }
+
+glm::vec3 Camera::getPos() {
+    return cameraPos;
+}
+void Camera::setPos(glm::vec3 cameraPos) {
+    this->cameraPos = cameraPos;
+}
+
+glm::vec3 Camera::getFront() {
+    return cameraFront;
+}
+void Camera::setFront(glm::vec3 cameraFront) {
+    this->cameraFront = cameraFront;
+}
+
+glm::vec3 Camera::getUp() {
+    return cameraUp;
+}
+void Camera::setUp(glm::vec3 cameraUp) {
+    this->cameraUp = cameraUp;
+}

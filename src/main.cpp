@@ -16,87 +16,13 @@
 
 #include "player/camera.hpp"
 #include "shaders/shader.hpp"
+#include "game/world.hpp"
 
 using namespace std;
 
 Camera *camera;
-const int WIDTH = 10;
-const int HEIGHT = 10;
-
 vector<float> vertices;
-vector<unsigned int> allIndices;
-
-float defaultVertices[] = {
-    // positions         // UVs
-    // Front face
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // 0
-     0.5f, -0.5f,  0.5f,  1.0f, 0.0f, // 1
-     0.5f,  0.5f,  0.5f,  1.0f, 1.0f, // 2
-    -0.5f,  0.5f,  0.5f,  0.0f, 1.0f, // 3
-    // Back face
-    -0.5f, -0.5f, -0.5f,  1.0f, 0.0f, // 4
-     0.5f, -0.5f, -0.5f,  0.0f, 0.0f, // 5
-     0.5f,  0.5f, -0.5f,  0.0f, 1.0f, // 6
-    -0.5f,  0.5f, -0.5f,  1.0f, 1.0f  // 7
-};
-
-
-unsigned int indices[] = {
-    // Front face
-    0, 1, 2,
-    2, 3, 0,
-    // Right face
-    1, 5, 6,
-    6, 2, 1,
-    // Back face
-    5, 4, 7,
-    7, 6, 5,
-    // Left face
-    4, 0, 3,
-    3, 7, 4,
-    // Top face
-    3, 2, 6,
-    6, 7, 3,
-    // Bottom face
-    4, 5, 1,
-    1, 0, 4
-};
-
-void generateTerrain() {
-    vertices.clear();
-    allIndices.clear();
-
-    unsigned int vertexOffset = 0;
-
-    for (int z = 0; z < HEIGHT; ++z) {
-        for (int x = 0; x < WIDTH; ++x) {
-            float xpos = x * 1.0f;
-            float ypos = 0.0f;
-            float zpos = z * 1.0f;
-
-            // Add transformed vertices
-            for (int i = 0; i < 8; ++i) {
-                float vx = defaultVertices[i * 5 + 0];
-                float vy = defaultVertices[i * 5 + 1];
-                float vz = defaultVertices[i * 5 + 2];
-                float u = defaultVertices[i * 5 + 3];
-                float v = defaultVertices[i * 5 + 4];
-
-                vertices.push_back(vx + xpos);
-                vertices.push_back(vy + ypos);
-                vertices.push_back(vz + zpos);
-                vertices.push_back(u);
-                vertices.push_back(v);
-            }
-
-            for (int i = 0; i < (int) (sizeof(indices) / sizeof(unsigned int)); ++i) {
-                allIndices.push_back(indices[i] + vertexOffset);
-            }
-
-            vertexOffset += 8;  
-        }
-    }
-}
+vector<unsigned int> indices;
 
 void processInput(GLFWwindow *window) {
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -104,18 +30,22 @@ void processInput(GLFWwindow *window) {
 
     const float cameraSpeed = 0.05f; 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) 
-        camera->cameraPos += cameraSpeed * camera->cameraFront;
+        camera->setPos(camera->getPos() + cameraSpeed * camera->getFront());
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camera->cameraPos -= cameraSpeed * camera->cameraFront;
+        camera->setPos(camera->getPos() - cameraSpeed * camera->getFront());
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camera->cameraPos -= glm::normalize(glm::cross(camera->cameraFront, camera->cameraUp)) * cameraSpeed;
+        camera->setPos(camera->getPos() - glm::normalize(glm::cross(camera->getFront(), camera->getUp())) * cameraSpeed);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camera->cameraPos += glm::normalize(glm::cross(camera->cameraFront, camera->cameraUp)) * cameraSpeed;
+        camera->setPos(camera->getPos() + glm::normalize(glm::cross(camera->getFront(), camera->getUp())) * cameraSpeed);
 }
 
 int main() {
     unsigned int VBO, VAO, EBO;
     unsigned int shaderProgram;
+    World world = World(7);
+    world.createWorld();
+    vertices = world.getVertices();
+    indices = world.getIndices();
 
     camera = new Camera();
 
@@ -130,7 +60,7 @@ int main() {
     
 
     cout << "init" << endl;
-    GLFWwindow* window = glfwCreateWindow(600, 600, "Name", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(1280, 960, "Name", NULL, NULL);
     if (!window){
         glfwTerminate();
         cout << "Failed to create window." << endl;
@@ -152,15 +82,13 @@ int main() {
     glGenVertexArrays(1, &VAO);  
     glBindVertexArray(VAO);
 
-    generateTerrain();
-
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
 
     glGenBuffers(1, &EBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, allIndices.size() * sizeof(unsigned int), allIndices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
 
     shaderProgram = createShader();
     glUseProgram(shaderProgram);
@@ -172,7 +100,6 @@ int main() {
     unsigned int texture;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
-    // set the texture wrapping/filtering options (on the currently bound texture object)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
@@ -223,7 +150,7 @@ int main() {
         glBindTexture(GL_TEXTURE_2D, texture);
         glBindVertexArray(VAO);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-        glDrawElements(GL_TRIANGLES, allIndices.size(), GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 
         glfwSwapBuffers(window);
 
