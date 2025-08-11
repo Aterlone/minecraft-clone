@@ -15,6 +15,8 @@ class Chunk {
         int createChunk();
         std::vector<std::vector<float>> getVertices();
         std::vector<std::vector<unsigned int>> getIndices();
+
+        void setWorldPos(std::vector<int> pos);
 };
 
 #endif

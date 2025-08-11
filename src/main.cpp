@@ -43,11 +43,12 @@ int main() {
     unsigned int VBO, VAO, EBO;
     unsigned int shaderProgram;
     World world = World(7);
-    world.createWorld();
-    vertices = world.getVertices();
-    indices = world.getIndices();
 
     camera = new Camera();
+    std::cout << camera->getPos()[0] << std::endl;
+    world.checkAndLoadChunks(camera->getPos());
+    vertices = world.getVertices();
+    indices = world.getIndices();
 
     cout << "start" << endl;
     if(!glfwInit()) {

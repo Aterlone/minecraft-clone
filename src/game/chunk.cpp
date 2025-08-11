@@ -19,6 +19,8 @@ int Chunk::createChunk() {
             for (int y = 0; y < HEIGHT; ++y) {
                 std::vector<int> position = {x+worldPos[0]*WIDTH, y+worldPos[1]*HEIGHT, z+worldPos[2]*WIDTH};
                 this->blocks[x][z][y] = Block(position);
+                // std::cout << "The world pos: " << position[0] << " " << position[1] << " " << position[2] << std::endl;
+
             }
         }
     }
@@ -57,4 +59,9 @@ std::vector<std::vector<unsigned int>> Chunk::getIndices() {
         }
     }
     return indices;
+}
+
+void Chunk::setWorldPos(std::vector<int> pos) {
+    this->worldPos = pos;
+    // std::cout << "The world pos: " << worldPos[0] << worldPos[1] << worldPos[2] << std::endl;
 }

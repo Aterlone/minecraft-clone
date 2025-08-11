@@ -5,21 +5,24 @@ World::World(int chunk_count) : chunk_count(chunk_count) {
     chunks.resize(chunk_count, dummyChunk);
 }
 
-int World::createWorld() {
-    for (int i = 0; i < chunk_count; ++i) {
-        this->chunks[i] = Chunk(i);
-        this->chunks[i].createChunk();
+int World::checkAndLoadChunks(glm::vec3 cameraPos) {
+    if (cameraPos == loadPos) return 0;
+
+    loadPos = cameraPos;
+
+    Chunk dummyChunk(0);
+    chunks.resize(9, dummyChunk);
+
+    for (int i = loadPos[0]; i < loadPos[0]+2; ++i) {
+        for (int j = loadPos[2]; j < loadPos[2]+2; ++j) {
+            int pos = (i-loadPos[0])*3 + (j-loadPos[2]);
+            this->chunks[pos] = Chunk(0);
+            this->chunks[pos].setWorldPos({i, 0, j});
+            this->chunks[pos].createChunk();
+        }
     }
     return 1;
 }
-
-// int checkAndLoadChunks(glm::vec3 cameraPos) {
-//     if (cameraPos.equals(loadPos)) return 0;
-
-//     loadPos = cameraPos;
-//     // for i in loadpos surrounding if it exists then load it else don't.
-//     for 
-// }
 
 std::vector<float> World::getVertices() {
     this->allVertices.clear();
@@ -60,4 +63,3 @@ std::vector<T> World::flatten(const std::vector<std::vector<T>>& nested) {
     }
     return flat;
 }
-

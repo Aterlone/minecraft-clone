@@ -1,6 +1,8 @@
 #ifndef WORLD_HPP
 #define WORLD_HPP
 
+#include <glm/glm.hpp>
+
 #include "chunk.hpp"
 #include <string>
 
@@ -10,14 +12,13 @@ class World {
         std::vector<float> allVertices;
         std::vector<unsigned int> allIndices;
 
-        // glm::vec3 loadPos;
+        glm::vec3 loadPos;
 
         int chunk_count;
     
     public:
         World(int chunk_count);
-        int createWorld();
-        // int checkAndLoadChunks(glm::vec3 cameraPos);
+        int checkAndLoadChunks(glm::vec3 cameraPos);
 
         std::vector<float> getVertices();
         std::vector<unsigned int> getIndices();
