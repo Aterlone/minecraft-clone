@@ -6,19 +6,21 @@ World::World(int chunk_count) : chunk_count(chunk_count) {
 }
 
 int World::checkAndLoadChunks(glm::vec3 cameraPos) {
-    if (cameraPos == loadPos) return 0;
-
-    loadPos = cameraPos;
-
-    Chunk dummyChunk(0);
-    chunks.resize(9, dummyChunk);
+    if ((int)cameraPos[0] == loadPos[0] && (int)cameraPos[1] == loadPos[1] && (int)cameraPos[2] == loadPos[2]) return 0;
+    std::cout << (int)cameraPos[1] << loadPos[1] << std::endl;
+    loadPos[0] = (int)cameraPos[0];
+    loadPos[1] = (int)cameraPos[1];
+    loadPos[2] = (int)cameraPos[2];
 
     for (int i = loadPos[0]; i < loadPos[0]+2; ++i) {
         for (int j = loadPos[2]; j < loadPos[2]+2; ++j) {
-            int pos = (i-loadPos[0])*3 + (j-loadPos[2]);
-            this->chunks[pos] = Chunk(0);
-            this->chunks[pos].setWorldPos({i, 0, j});
-            this->chunks[pos].createChunk();
+            Chunk chunk = Chunk(0);
+            chunk.setWorldPos({i, 0, j});
+            if (std::find(chunks.begin(), chunks.end(), chunk) == chunks.end()) {
+                this->chunks.push_back(chunk);
+                this->chunks.back().createChunk();
+                std::cout << "Size of chunk vector" << chunks.size() << std::endl;
+            }
         }
     }
     return 1;
@@ -26,7 +28,7 @@ int World::checkAndLoadChunks(glm::vec3 cameraPos) {
 
 std::vector<float> World::getVertices() {
     this->allVertices.clear();
-    for (int i = 0; i < chunk_count; ++i) {
+    for (int i = 0; i < (int)chunks.size(); ++i) {
         auto nestedVerts = chunks[i].getVertices(); 
         std::vector<float> flatVerts = flatten<float>(nestedVerts);
         this->allVertices.insert(this->allVertices.end(), flatVerts.begin(), flatVerts.end());
@@ -39,7 +41,7 @@ std::vector<unsigned int> World::getIndices() {
     this->allIndices.clear();
     unsigned int vertexOffset = 0;
 
-    for (int i = 0; i < chunk_count; ++i) {
+    for (int i = 0; i < (int)chunks.size(); ++i) {
         auto nestedInd = chunks[i].getIndices(); 
         std::vector<unsigned int> flatInd = flatten<unsigned int>(nestedInd);
 

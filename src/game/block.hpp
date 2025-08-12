@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <iostream>
+#include <algorithm>
 
 const float defaultVertices[] = {
     // positions         // UVs
