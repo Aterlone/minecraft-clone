@@ -65,3 +65,14 @@ void Chunk::setWorldPos(std::vector<int> pos) {
     this->worldPos = pos;
     // std::cout << "The world pos: " << worldPos[0] << worldPos[1] << worldPos[2] << std::endl;
 }
+
+int Chunk::inRange(std::vector<int> pos) {
+    int x, y, z;
+    x = (abs(this->worldPos[0] - pos[0]) <= 2);
+    y = (abs(this->worldPos[1] - pos[1]) <= 2); y = 1;
+    z = (abs(this->worldPos[2] - pos[2]) <= 2);
+    std::cout << worldPos[0];
+    std::cout << worldPos[1];
+    std::cout << worldPos[2] << std::endl;
+    return x && y && z;
+}

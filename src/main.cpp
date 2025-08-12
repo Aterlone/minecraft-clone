@@ -59,7 +59,6 @@ int main() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     
-
     cout << "init" << endl;
     GLFWwindow* window = glfwCreateWindow(1280, 960, "Name", NULL, NULL);
     if (!window){
@@ -76,7 +75,7 @@ int main() {
     }
 
     glEnable(GL_DEPTH_TEST);
-
+    glEnable(GL_CULL_FACE);  
 
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 
@@ -138,7 +137,6 @@ int main() {
 
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(2);
-
 
     while (!glfwWindowShouldClose(window))
     {

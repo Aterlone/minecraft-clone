@@ -10,15 +10,15 @@ int World::checkAndLoadChunks(glm::vec3 cameraPos) {
     cameraPos[1] /= HEIGHT;
     cameraPos[2] /= WIDTH;
     if ((int)cameraPos[0] == loadPos[0] && (int)cameraPos[1] == loadPos[1] && (int)cameraPos[2] == loadPos[2]) return 0;
-    
     loadPos[0] = (int)cameraPos[0];
     loadPos[1] = (int)cameraPos[1];
     loadPos[2] = (int)cameraPos[2];
 
+
     for (int i = loadPos[0]-2; i < loadPos[0]+2; ++i) {
         for (int j = loadPos[2]-2; j < loadPos[2]+2; ++j) {
             Chunk chunk = Chunk(0);
-            chunk.setWorldPos({i, 0, -j});
+            chunk.setWorldPos({i, 0, j});
             if (std::find(chunks.begin(), chunks.end(), chunk) == chunks.end()) {
                 this->chunks.push_back(chunk);
                 this->chunks.back().createChunk();
@@ -29,9 +29,11 @@ int World::checkAndLoadChunks(glm::vec3 cameraPos) {
     return 1;
 }
 
+// in future change so it doesn't check all and reformat cunks so tha it can just get the values in a specific range because mroe efficient
 std::vector<float> World::getVertices() {
     this->allVertices.clear();
     for (int i = 0; i < (int)chunks.size(); ++i) {
+        if (!chunks[i].inRange({(int)(loadPos[0]), (int)(loadPos[1]), (int)(loadPos[2])})) continue;
         auto nestedVerts = chunks[i].getVertices(); 
         std::vector<float> flatVerts = flatten<float>(nestedVerts);
         this->allVertices.insert(this->allVertices.end(), flatVerts.begin(), flatVerts.end());
@@ -45,6 +47,7 @@ std::vector<unsigned int> World::getIndices() {
     unsigned int vertexOffset = 0;
 
     for (int i = 0; i < (int)chunks.size(); ++i) {
+        if (!chunks[i].inRange({(int)(loadPos[0]), (int)(loadPos[1]), (int)(loadPos[2])})) continue;
         auto nestedInd = chunks[i].getIndices(); 
         std::vector<unsigned int> flatInd = flatten<unsigned int>(nestedInd);
 

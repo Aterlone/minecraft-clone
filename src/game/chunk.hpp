@@ -17,6 +17,7 @@ class Chunk {
         std::vector<std::vector<unsigned int>> getIndices();
 
         void setWorldPos(std::vector<int> pos);
+        int inRange(std::vector<int> pos);
 
         bool operator==(const Chunk& other) const {
             return worldPos[0] == other.worldPos[0] &&
