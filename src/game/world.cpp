@@ -15,14 +15,14 @@ int World::checkAndLoadChunks(glm::vec3 cameraPos) {
     loadPos[2] = (int)cameraPos[2];
 
 
-    for (int i = loadPos[0]-2; i < loadPos[0]+2; ++i) {
-        for (int j = loadPos[2]-2; j < loadPos[2]+2; ++j) {
+    for (int i = loadPos[0]-8; i < loadPos[0]+8; ++i) {
+        for (int j = loadPos[2]-8; j < loadPos[2]+8; ++j) {
             Chunk chunk = Chunk(0);
             chunk.setWorldPos({i, 0, j});
             if (std::find(chunks.begin(), chunks.end(), chunk) == chunks.end()) {
                 this->chunks.push_back(chunk);
                 this->chunks.back().createChunk();
-                std::cout << "Size of chunk vector" << chunks.size() << std::endl;
+                // std::cout << "Size of chunk vector" << chunks.size() << std::endl;
             }
         }
     }

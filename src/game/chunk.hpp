@@ -4,7 +4,7 @@
 #include "block.hpp"
 
 const int WIDTH = 10;
-const int HEIGHT = 3;
+const int HEIGHT = 20;
 
 class Chunk {
     private:

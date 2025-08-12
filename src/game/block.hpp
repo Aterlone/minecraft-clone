@@ -4,6 +4,8 @@
 #include <vector>
 #include <iostream>
 #include <algorithm>
+#include <cstdlib>
+#include <cmath>
 
 const float defaultVertices[] = {
     // positions         // UVs

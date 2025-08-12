@@ -17,10 +17,12 @@ int Chunk::createChunk() {
     for (int x = 0; x < WIDTH; ++x) {
         for (int z = 0; z < WIDTH; ++z) {
             for (int y = 0; y < HEIGHT; ++y) {
+                int circle = sqrt(abs(x-WIDTH/2) + abs(y-HEIGHT/2) + abs(z-WIDTH/2));
+                if (circle > 3) continue;
+
                 std::vector<int> position = {x+worldPos[0]*WIDTH, y+worldPos[1]*HEIGHT, z+worldPos[2]*WIDTH};
                 this->blocks[x][z][y] = Block(position);
                 // std::cout << "The world pos: " << position[0] << " " << position[1] << " " << position[2] << std::endl;
-
             }
         }
     }
@@ -68,11 +70,8 @@ void Chunk::setWorldPos(std::vector<int> pos) {
 
 int Chunk::inRange(std::vector<int> pos) {
     int x, y, z;
-    x = (abs(this->worldPos[0] - pos[0]) <= 2);
-    y = (abs(this->worldPos[1] - pos[1]) <= 2); y = 1;
-    z = (abs(this->worldPos[2] - pos[2]) <= 2);
-    std::cout << worldPos[0];
-    std::cout << worldPos[1];
-    std::cout << worldPos[2] << std::endl;
+    x = (abs(this->worldPos[0] - pos[0]) <= 4);
+    y = (abs(this->worldPos[1] - pos[1]) <= 4); y = 1;
+    z = (abs(this->worldPos[2] - pos[2]) <= 4);
     return x && y && z;
 }
