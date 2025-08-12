@@ -6,16 +6,19 @@ World::World(int chunk_count) : chunk_count(chunk_count) {
 }
 
 int World::checkAndLoadChunks(glm::vec3 cameraPos) {
+    cameraPos[0] /= WIDTH;
+    cameraPos[1] /= HEIGHT;
+    cameraPos[2] /= WIDTH;
     if ((int)cameraPos[0] == loadPos[0] && (int)cameraPos[1] == loadPos[1] && (int)cameraPos[2] == loadPos[2]) return 0;
-    std::cout << (int)cameraPos[1] << loadPos[1] << std::endl;
+    
     loadPos[0] = (int)cameraPos[0];
     loadPos[1] = (int)cameraPos[1];
     loadPos[2] = (int)cameraPos[2];
 
-    for (int i = loadPos[0]; i < loadPos[0]+2; ++i) {
-        for (int j = loadPos[2]; j < loadPos[2]+2; ++j) {
+    for (int i = loadPos[0]-2; i < loadPos[0]+2; ++i) {
+        for (int j = loadPos[2]-2; j < loadPos[2]+2; ++j) {
             Chunk chunk = Chunk(0);
-            chunk.setWorldPos({i, 0, j});
+            chunk.setWorldPos({i, 0, -j});
             if (std::find(chunks.begin(), chunks.end(), chunk) == chunks.end()) {
                 this->chunks.push_back(chunk);
                 this->chunks.back().createChunk();
