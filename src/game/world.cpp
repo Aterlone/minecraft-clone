@@ -1,8 +1,8 @@
 #include "world.hpp"
 
-World::World(int chunk_count) : chunk_count(chunk_count) {
+World::World() {
     Chunk dummyChunk(0);
-    chunks.resize(chunk_count, dummyChunk);
+    chunks.resize(1, dummyChunk);
 }
 
 int World::checkAndLoadChunks(glm::vec3 cameraPos) {
@@ -33,7 +33,10 @@ int World::checkAndLoadChunks(glm::vec3 cameraPos) {
 std::vector<float> World::getVertices() {
     this->allVertices.clear();
     for (int i = 0; i < (int)chunks.size(); ++i) {
-        if (!chunks[i].inRange({(int)(loadPos[0]), (int)(loadPos[1]), (int)(loadPos[2])})) continue;
+        if (!chunks[i].inRange({(int)(loadPos[0]), (int)(loadPos[1]), (int)(loadPos[2])})) {
+            // chunks[i].clearChunk();
+            continue;
+        }
         auto nestedVerts = chunks[i].getVertices(); 
         std::vector<float> flatVerts = flatten<float>(nestedVerts);
         this->allVertices.insert(this->allVertices.end(), flatVerts.begin(), flatVerts.end());
@@ -47,7 +50,9 @@ std::vector<unsigned int> World::getIndices() {
     unsigned int vertexOffset = 0;
 
     for (int i = 0; i < (int)chunks.size(); ++i) {
-        if (!chunks[i].inRange({(int)(loadPos[0]), (int)(loadPos[1]), (int)(loadPos[2])})) continue;
+        if (!chunks[i].inRange({(int)(loadPos[0]), (int)(loadPos[1]), (int)(loadPos[2])})) {
+            continue;
+        }
         auto nestedInd = chunks[i].getIndices(); 
         std::vector<unsigned int> flatInd = flatten<unsigned int>(nestedInd);
 

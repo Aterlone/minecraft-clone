@@ -13,11 +13,9 @@ class World {
         std::vector<unsigned int> allIndices;
 
         glm::vec3 loadPos;
-
-        int chunk_count;
     
     public:
-        World(int chunk_count);
+        World();
         int checkAndLoadChunks(glm::vec3 cameraPos);
 
         std::vector<float> getVertices();

@@ -75,6 +75,7 @@ class Block {
         std::vector<unsigned int> blockIndices;
 
     public:
+        Block();
         Block(std::vector<int> position);
         std::vector<float> getVertices();
         std::vector<unsigned int> getIndices();

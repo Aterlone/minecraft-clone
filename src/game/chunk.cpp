@@ -29,6 +29,17 @@ int Chunk::createChunk() {
     return 1;
 }
 
+void Chunk::clearChunk() {
+    blocks.clear();
+    blocks.resize(WIDTH);
+    for (auto& plane : blocks) {
+        plane.resize(WIDTH);
+        for (auto& row : plane) {
+            row.resize(HEIGHT);
+        }
+    }
+}
+
 std::vector<std::vector<float>> Chunk::getVertices() {
     std::vector<std::vector<float>> vertices;
     for (int x = 0; x < WIDTH; ++x) {

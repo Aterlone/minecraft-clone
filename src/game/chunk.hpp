@@ -13,6 +13,8 @@ class Chunk {
     public:
         Chunk(int x);
         int createChunk();
+        void clearChunk();
+
         std::vector<std::vector<float>> getVertices();
         std::vector<std::vector<unsigned int>> getIndices();
 

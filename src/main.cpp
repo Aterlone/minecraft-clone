@@ -20,9 +20,10 @@
 
 using namespace std;
 
+#define WINDOW_WIDTH 1280
+#define WINDOW_HEIGHT 960
+
 Camera *camera;
-vector<float> vertices;
-vector<unsigned int> indices;
 
 void processInput(GLFWwindow *window) {
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -39,45 +40,52 @@ void processInput(GLFWwindow *window) {
         camera->setPos(camera->getPos() + glm::normalize(glm::cross(camera->getFront(), camera->getUp())) * cameraSpeed);
 }
 
-int main() {
-    unsigned int VBO, VAO, EBO;
-    unsigned int shaderProgram;
-    World world = World(7);
-
+void createCamera() {
     camera = new Camera();
     std::cout << camera->getPos()[0] << std::endl;
-    world.checkAndLoadChunks(camera->getPos());
-    vertices = world.getVertices();
-    indices = world.getIndices();
+}
 
-    cout << "start" << endl;
+void glfwSetup() {
     if(!glfwInit()) {
         cout << "Failed to start glfw." << endl;
-        return -1;
+        exit(EXIT_FAILURE);
     }
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    
-    cout << "init" << endl;
-    GLFWwindow* window = glfwCreateWindow(1280, 960, "Name", NULL, NULL);
+}
+
+World setupWorld() {
+    World world = World();
+    world.checkAndLoadChunks(camera->getPos());
+    createCamera();
+    glfwSetup();  
+    return world;
+}
+
+GLFWwindow* setupWindow() {
+    GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Name", NULL, NULL);
     if (!window){
         glfwTerminate();
         cout << "Failed to create window." << endl;
-        return -1;
+        exit(EXIT_FAILURE);
     }
-    cout << "Create window" << endl;
+
     glfwMakeContextCurrent(window);
-
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        cout << "not initialised." << endl;
-        return -1;
+        cout << "Not initialised." << endl;
+        exit(EXIT_FAILURE);
     }
-
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);  
-
+    glEnable(GL_CULL_FACE);
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    return window;
+}
+
+vector<unsigned int> generateGPUBuffers(World world) {
+    unsigned int VAO, VBO, EBO;
+    vector<float> vertices = world.getVertices();
+    vector<unsigned int> indices = world.getIndices();
 
     glGenVertexArrays(1, &VAO);  
     glBindVertexArray(VAO);
@@ -89,26 +97,28 @@ int main() {
     glGenBuffers(1, &EBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
+    return {VAO, VBO, EBO};
+}
 
-    shaderProgram = createShader();
-    glUseProgram(shaderProgram);
-
-
-    float borderColor[] = { 1.0f, 1.0f, 0.0f, 1.0f };
-    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);  
-    
+unsigned int setupTextures() {
     unsigned int texture;
+    // Function Params for loading image
+    int width, height, nrChannels;
+    // Data from Function
+    unsigned char *data;
+    float borderColor[] = { 1.0f, 1.0f, 0.0f, 1.0f };
+
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);  
 
     stbi_set_flip_vertically_on_load(true);
 
-    int width, height, nrChannels;
-    unsigned char *data = stbi_load("textures/blocks.png", &width, &height, &nrChannels, 0);
+    data = stbi_load("textures/blocks.png", &width, &height, &nrChannels, 0);
 
     if (data)
     {
@@ -130,13 +140,38 @@ int main() {
         std::cout << "Failed to load texture at path: ../textures/blocks.png" << std::endl;
     }
     stbi_image_free(data);
+    return texture;
+}
 
+int main() {
+    World world;
+    GLFWwindow* window;
+
+    unsigned int VAO, EBO; //VBO temporarily deleted.
+    unsigned int shaderProgram;
+    unsigned int texture;
+
+    vector<float> vertices;
+    vector<unsigned int> indices;
+
+    world = setupWorld();
+    window = setupWindow();
+
+    vector<unsigned int> bufferValues = generateGPUBuffers(world);
+    VAO = bufferValues[0]; 
+    // VBO = bufferValues[1]; 
+    EBO = bufferValues[2];
+
+    shaderProgram = createShader();
+    glUseProgram(shaderProgram);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(2);
+
+    texture = setupTextures();
 
     while (!glfwWindowShouldClose(window))
     {

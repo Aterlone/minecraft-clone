@@ -1,5 +1,9 @@
 #include "block.hpp"
 
+Block::Block() {
+    return;
+}
+
 Block::Block(std::vector<int> position) {
     float xpos = position[0] * 1.0f;
     float ypos = position[1] * 1.0f;
