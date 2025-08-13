@@ -11,7 +11,7 @@ class Chunk {
         std::vector<std::vector<std::vector<Block>>> blocks;
         std::vector<int> worldPos;
     public:
-        Chunk(int x);
+        Chunk();
         int createChunk();
         void clearChunk();
 

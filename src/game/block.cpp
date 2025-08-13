@@ -1,9 +1,7 @@
 #include "block.hpp"
 
-Block::Block() {
-    return;
-}
-
+// Create the block based on the position passed in.
+Block::Block() {}
 Block::Block(std::vector<int> position) {
     float xpos = position[0] * 1.0f;
     float ypos = position[1] * 1.0f;
@@ -31,6 +29,7 @@ Block::Block(std::vector<int> position) {
 std::vector<float> Block::getVertices() {
     return this->vertices;
 }
+
 std::vector<unsigned int> Block::getIndices() {
     return this->blockIndices;
 }

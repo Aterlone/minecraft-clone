@@ -1,18 +1,11 @@
 #include "chunk.hpp"
 
-Chunk::Chunk(int x) : worldPos({x, 0, 0}) {
-    std::vector<int> dummyPos = {0, 0, 0};
-    Block dummyBlock(dummyPos);
-    
-    blocks.resize(WIDTH); 
-    for (int x = 0; x < WIDTH; ++x) {
-        blocks[x].resize(WIDTH); 
-        for (int z = 0; z < WIDTH; ++z) {
-            blocks[x][z].resize(HEIGHT, dummyBlock); 
-        }
-    }
+// On initialisation initialise the chunk's blocks vector to the correct size.
+Chunk::Chunk() {
+    clearChunk();
 }
 
+// Create Chunk based on 
 int Chunk::createChunk() {
     for (int x = 0; x < WIDTH; ++x) {
         for (int z = 0; z < WIDTH; ++z) {
@@ -22,13 +15,13 @@ int Chunk::createChunk() {
 
                 std::vector<int> position = {x+worldPos[0]*WIDTH, y+worldPos[1]*HEIGHT, z+worldPos[2]*WIDTH};
                 this->blocks[x][z][y] = Block(position);
-                // std::cout << "The world pos: " << position[0] << " " << position[1] << " " << position[2] << std::endl;
             }
         }
     }
     return 1;
 }
 
+// Clear the blocks vector and resize.
 void Chunk::clearChunk() {
     blocks.clear();
     blocks.resize(WIDTH);
@@ -76,9 +69,9 @@ std::vector<std::vector<unsigned int>> Chunk::getIndices() {
 
 void Chunk::setWorldPos(std::vector<int> pos) {
     this->worldPos = pos;
-    // std::cout << "The world pos: " << worldPos[0] << worldPos[1] << worldPos[2] << std::endl;
 }
 
+// Curving Corners.
 int Chunk::inRange(std::vector<int> pos) {
     int x, y, z;
     x = (abs(this->worldPos[0] - pos[0]) <= 4);

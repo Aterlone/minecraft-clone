@@ -7,6 +7,7 @@ Camera::Camera() {
     cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
 }
 
+// Get for and send to the vertexShadar, the model, view, and projection.
 void Camera::project(unsigned int shaderProgram) {
     view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 

@@ -1,40 +1,35 @@
 #include "world.hpp"
 
-World::World() {
-    Chunk dummyChunk(0);
-    chunks.resize(1, dummyChunk);
-}
+World::World() {}
 
+// Load the chunks a certain distance from the player if they don't already exist.
 int World::checkAndLoadChunks(glm::vec3 cameraPos) {
-    cameraPos[0] /= WIDTH;
-    cameraPos[1] /= HEIGHT;
-    cameraPos[2] /= WIDTH;
-    if ((int)cameraPos[0] == loadPos[0] && (int)cameraPos[1] == loadPos[1] && (int)cameraPos[2] == loadPos[2]) return 0;
-    loadPos[0] = (int)cameraPos[0];
-    loadPos[1] = (int)cameraPos[1];
-    loadPos[2] = (int)cameraPos[2];
+    // Check for change in camera's (aka the player's) change in position.
+    cameraPos[0] = (int)(cameraPos[0] / WIDTH);
+    cameraPos[1] = (int)(cameraPos[1] / HEIGHT);
+    cameraPos[2] = (int)(cameraPos[2] / WIDTH);
+    if (loadPos == cameraPos) return 0;
+    loadPos = cameraPos
 
-
+    // Load chunks.
     for (int i = loadPos[0]-8; i < loadPos[0]+8; ++i) {
         for (int j = loadPos[2]-8; j < loadPos[2]+8; ++j) {
-            Chunk chunk = Chunk(0);
+            Chunk chunk = Chunk();
             chunk.setWorldPos({i, 0, j});
             if (std::find(chunks.begin(), chunks.end(), chunk) == chunks.end()) {
                 this->chunks.push_back(chunk);
                 this->chunks.back().createChunk();
-                // std::cout << "Size of chunk vector" << chunks.size() << std::endl;
             }
         }
     }
     return 1;
 }
 
-// in future change so it doesn't check all and reformat cunks so tha it can just get the values in a specific range because mroe efficient
 std::vector<float> World::getVertices() {
     this->allVertices.clear();
     for (int i = 0; i < (int)chunks.size(); ++i) {
+        // If not in Render Distance.
         if (!chunks[i].inRange({(int)(loadPos[0]), (int)(loadPos[1]), (int)(loadPos[2])})) {
-            // chunks[i].clearChunk();
             continue;
         }
         auto nestedVerts = chunks[i].getVertices(); 
@@ -50,6 +45,7 @@ std::vector<unsigned int> World::getIndices() {
     unsigned int vertexOffset = 0;
 
     for (int i = 0; i < (int)chunks.size(); ++i) {
+        // If not in Render Distance.
         if (!chunks[i].inRange({(int)(loadPos[0]), (int)(loadPos[1]), (int)(loadPos[2])})) {
             continue;
         }

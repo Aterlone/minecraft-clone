@@ -149,35 +149,9 @@ unsigned int setupTextures() {
     return texture;
 }
 
-int main() {
-    World world;
-    GLFWwindow* window;
-
-    unsigned int VAO, EBO; //VBO temporarily deleted.
-    unsigned int shaderProgram;
-    unsigned int texture;
-
+void gameLoop(GLFWwindow* window, World world, unsigned int VAO, unsigned int EBO, unsigned int shaderProgram, unsigned int texture) {
     vector<float> vertices;
     vector<unsigned int> indices;
-
-    world = setupWorld();
-    window = setupWindow();
-
-    vector<unsigned int> bufferValues = generateGPUBuffers(world);
-    VAO = bufferValues[0]; 
-    // VBO = bufferValues[1]; 
-    EBO = bufferValues[2];
-
-    shaderProgram = createShader();
-    glUseProgram(shaderProgram);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(2);
-
-    texture = setupTextures();
     while (!glfwWindowShouldClose(window))
     {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -204,5 +178,35 @@ int main() {
         glfwPollEvents();
     }
     glfwTerminate();
+}
+
+int main() {
+    World world;
+    GLFWwindow* window;
+
+    unsigned int VAO, EBO; //VBO temporarily deleted.
+    unsigned int shaderProgram;
+    unsigned int texture;
+
+    world = setupWorld();
+    window = setupWindow();
+
+    vector<unsigned int> bufferValues = generateGPUBuffers(world);
+    VAO = bufferValues[0]; 
+    // VBO = bufferValues[1]; 
+    EBO = bufferValues[2];
+
+    shaderProgram = createShader();
+    glUseProgram(shaderProgram);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+
+    texture = setupTextures();
+
+    gameLoop(window, world, VAO, EBO, shaderProgram, texture);
     return 0;
 }
