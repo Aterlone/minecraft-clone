@@ -41,6 +41,7 @@ void processInput(GLFWwindow *window) {
 }
 
 void createCamera() {
+    std::cout << "Creating Camera" << endl;
     camera = new Camera();
     std::cout << camera->getPos()[0] << std::endl;
 }
@@ -56,10 +57,13 @@ void glfwSetup() {
 }
 
 World setupWorld() {
+    cout << "Setting up world." << endl;
+    createCamera();
+
     World world = World();
     world.checkAndLoadChunks(camera->getPos());
-    createCamera();
     glfwSetup();  
+    cout << "Setup world." << endl;
     return world;
 }
 
@@ -100,26 +104,13 @@ vector<unsigned int> generateGPUBuffers(World world) {
     return {VAO, VBO, EBO};
 }
 
-unsigned int setupTextures() {
-    unsigned int texture;
-    // Function Params for loading image
-    int width, height, nrChannels;
-    // Data from Function
+void loadImage() {
     unsigned char *data;
-    float borderColor[] = { 1.0f, 1.0f, 0.0f, 1.0f };
-
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);  
+    int width, height, nrChannels;
 
     stbi_set_flip_vertically_on_load(true);
 
     data = stbi_load("textures/blocks.png", &width, &height, &nrChannels, 0);
-
     if (data)
     {
         GLenum format;
@@ -140,6 +131,21 @@ unsigned int setupTextures() {
         std::cout << "Failed to load texture at path: ../textures/blocks.png" << std::endl;
     }
     stbi_image_free(data);
+}
+
+unsigned int setupTextures() {
+    unsigned int texture;
+    float borderColor[] = { 1.0f, 1.0f, 0.0f, 1.0f };
+
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);  
+
+    loadImage();
     return texture;
 }
 
@@ -172,13 +178,10 @@ int main() {
     glEnableVertexAttribArray(2);
 
     texture = setupTextures();
-
     while (!glfwWindowShouldClose(window))
     {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
         processInput(window);
-        // Change this to chekc based on the chunk it's in not position.
         if (world.checkAndLoadChunks(camera->getPos())) {
             vertices = world.getVertices();
             indices = world.getIndices();
@@ -187,7 +190,6 @@ int main() {
             std::cout << "Vertices: " << vertices.size() << ", Indices: " << indices.size() << std::endl;
 
         }
-
         camera->project(shaderProgram);
 
         //stuff
@@ -201,7 +203,6 @@ int main() {
 
         glfwPollEvents();
     }
-
     glfwTerminate();
     return 0;
 }
