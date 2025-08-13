@@ -18,9 +18,13 @@
 #include "shaders/shader.hpp"
 #include "game/world.hpp"
 
+#define WINDOW_WIDTH 1280
+#define WINDOW_HEIGHT 960
+
 using namespace std;
 
 Camera *camera;
+// Why are these global?
 vector<float> vertices;
 vector<unsigned int> indices;
 
@@ -39,39 +43,58 @@ void processInput(GLFWwindow *window) {
         camera->setPos(camera->getPos() + glm::normalize(glm::cross(camera->getFront(), camera->getUp())) * cameraSpeed);
 }
 
-int main() {
-    unsigned int VBO, VAO, EBO;
-    unsigned int shaderProgram;
-    World world = World(7);
-
+void create_camera() {
     camera = new Camera();
     std::cout << camera->getPos()[0] << std::endl;
     world.checkAndLoadChunks(camera->getPos());
     vertices = world.getVertices();
     indices = world.getIndices();
+}
 
-    cout << "start" << endl;
+void glfw_setup() {
     if(!glfwInit()) {
         cout << "Failed to start glfw." << endl;
-        return -1;
+        exit(EXIT_FAILURE);
     }
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    
+}
+
+/*
+Create a custom Game struct containing all globals (world, VBO, VAO, EBO, shaderProgam, window, verticies, indicies)
+Potentially have sub structs for similar data like a custom window struct containing (VBO, VAO, EBO, shaderProgam, window)
+Make assosiated functions and methods that handle related tasks like setuping up the window, shader updates and the like.
+
+Your using an oop so make the most of encapsulation! Its really hard to demangle main without spending a day and so thats why i left
+it mostly as is. Moving destinct parts of your probram into their own space will make it alot easyer to maintain and share.
+
+I did not look at much of the other areas of your code base however at a glance they look clean enough to I focused on main.
+*/
+
+int main() {
+    unsigned int VBO, VAO, EBO;
+    unsigned int shaderProgram;
+    World world = World(7); // Undocumented magic number
+
+    create_camera();
+
+    cout << "start" << endl;
+    glfw_setup();
     cout << "init" << endl;
-    GLFWwindow* window = glfwCreateWindow(1280, 960, "Name", NULL, NULL);
+    
+    GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Name", NULL, NULL);
     if (!window){
         glfwTerminate();
         cout << "Failed to create window." << endl;
-        return -1;
+        exit(EXIT_FAILURE);
     }
     cout << "Create window" << endl;
     glfwMakeContextCurrent(window);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         cout << "not initialised." << endl;
-        return -1;
+        exit(EXIT_FAILURE);
     }
 
     glEnable(GL_DEPTH_TEST);
